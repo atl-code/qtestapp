@@ -227,7 +227,7 @@ def main():
         chatApplicationComponent()
     else:
         global user_data
-        st.sidebar.title ("My 1040 Advisor App with Amazon Q") 
+        st.sidebar.subheader ("IRS Form 1040 Advisor App with Amazon Q") 
         st.title("Login")
         username = st.text_input("username")
         password = st.text_input("Password", type="password")
