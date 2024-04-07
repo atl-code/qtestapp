@@ -128,6 +128,9 @@ def logout():
 # Main chat application Interface
 def chatApplicationComponent():
      #adding logo/username
+    st.sidebar.title ("My 1040 Advisor App with Amazon Q")
+    if st.session_state['user']:
+        st.sidebar.text ("User: "+ st.session_state['user']['username'])
     st.markdown(
         f"""
          <style>
@@ -172,7 +175,7 @@ def chatApplicationComponent():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
     # React to user input
-    prompt = st.chat_input("what is Hybrid Connectivity?")
+    prompt = st.chat_input("Ask Me a Question")
 
     # if st.button("Send"):
     if prompt:
@@ -209,11 +212,11 @@ def chatApplicationComponent():
     
     if not st.session_state.messages and not conversationID and not parentMessageID:
         # Display the questions
-        st.title("Start New Chat")
-        st.write("1. Explain two main categories.")
-        st.write("2. What is the main difference between the two categories?")
-        st.write("3. What is Hybrid Design?")
-        st.write("4. what is Hybrid Connectivity?") 
+        st.title("Suggested Topics:")
+        st.write("1. If I plan to move after filing my tax return, What should i File?")
+        st.write("2. If my Filing Status is Single and i am under 65, what is the gross income limit?")
+        st.write("3. How Should I Report Digital Asset Transactions?")
+        st.write("4. Explain Line 6c to me") 
         
 
 # Main to switch between login and cha.
@@ -222,6 +225,7 @@ def main():
         chatApplicationComponent()
     else:
         global user_data
+        st.sidebar.title ("My 1040 Advisor App with Amazon Q") 
         st.title("Login")
         username = st.text_input("username")
         password = st.text_input("Password", type="password")
