@@ -9,6 +9,8 @@ IDENTITYPOOLID = st.secrets["IDENTITY_POOL_ID"]
 ACCOUNTID = st.secrets["ACCOUNT_ID"]
 
 
+
+# Function use to authenticate user credentials from Amazon Cognito
 def authenticate(username, password):
     try:
         client = boto3.client('cognito-idp', region_name=REGION)
@@ -27,10 +29,11 @@ def authenticate(username, password):
         return None
 
 
-def getuser(idtoken, access_token):
+
+# Function use to get AWS credentials to access other services like Q Application etc 
+def GetuserCredentials(idtoken, access_token):
     try:
         clientidp = boto3.client('cognito-idp', region_name=REGION)
-
         client = boto3.client('cognito-identity', region_name=REGION)
         user = clientidp.get_user(
                  AccessToken=access_token
@@ -45,7 +48,6 @@ def getuser(idtoken, access_token):
             Logins=logins
         )
         identityId = response['IdentityId']
-        
         responsee = client.get_credentials_for_identity(
                 IdentityId=identityId,
                 Logins=logins
@@ -53,7 +55,6 @@ def getuser(idtoken, access_token):
         accesskeyID = responsee['Credentials']['AccessKeyId']
         secretkey = responsee['Credentials']['SecretKey']
         sessiontoken = responsee['Credentials']['SessionToken']
-
 
         sts_client = boto3.client('sts',
         aws_access_key_id=accesskeyID,
@@ -72,34 +73,13 @@ def getuser(idtoken, access_token):
             "username": username
         }
         st.session_state['user'] = userdata
-        # st.session_state.runpage = user_details_page
-        st.experimental_rerun()
+        st.rerun()
 
     except Exception as e:
         st.error("Failed to get credentials: " + str(e))
 
 
-
-# def get_open_id_token(identity_id, user_id_token):
-#     client = boto3.client('cognito-identity', region_name=REGION)
-    
-#     logins = {
-#         f'cognito-idp.{REGION}.amazonaws.com/{USER_POOL_ID}': user_id_token
-#     }
-    
-#     try:
-#         response = client.get_open_id_token(
-#             IdentityId=identity_id,
-#             Logins=logins
-#         )
-#         # return response
-#         st.write(response)
-
-#     except Exception as e:
-#         st.error("Failed to get credentials: " + str(e))
-
-
-
+# Function use update password
 def respond_to_auth_challenge(username, new_password, session):
     try:
         client = boto3.client('cognito-idp', region_name=REGION)
@@ -118,13 +98,20 @@ def respond_to_auth_challenge(username, new_password, session):
         return None
 
 
+
+# function use to handle update password challenge Automatically
 def update_password(username,password, session):
-    st.header("Updating password")
-    st.write("As it is by default forced to update for self created users")
     new_password = password
     update_response = respond_to_auth_challenge(username, new_password, session)
     if update_response:
-        st.success("Password updated successfully!")
+        auth_response = authenticate(username, new_password)
+        st.success("Authentication successful!")
+        st.success("Waiting for Other Services Access verification")
+        st.session_state['auth_response'] = auth_response
+        st.session_state['isuserloggedin'] = True
+        id_token = auth_response['AuthenticationResult']['IdToken']
+        access_token = auth_response['AuthenticationResult']['AccessToken']
+        GetuserCredentials(id_token, access_token)
     else:
         st.error("Error updating password. Please try again.")
 
