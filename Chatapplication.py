@@ -212,7 +212,9 @@ def chatApplicationComponent():
     
     if not st.session_state.messages and not conversationID and not parentMessageID:
         # Display the questions
-        st.title("Suggested Topics:")
+        
+        st.subheader("Ask Natural Language Questions Against IRS Form 1040 Instructions Guide:")
+        st.write("Suggested Topics:")
         st.write("1. If I plan to move after filing my tax return, What should i File?")
         st.write("2. If my Filing Status is Single and i am under 65, what is the gross income limit?")
         st.write("3. How Should I Report Digital Asset Transactions?")
